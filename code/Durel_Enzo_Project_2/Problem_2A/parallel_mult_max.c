@@ -5,6 +5,8 @@
 
 #define DEBUG 0
 
+#define MAX(a, b) (a > b) ? a : b
+
 /* ----------- Project 2 - Problem 1 - Matrix Mult -----------
 
     This file will multiply two matricies.
@@ -22,19 +24,9 @@ void print_array(long int * array, int height, int width)
     }
 }
 
-void write_csv(FILE *file, long int* array, int n_row, int n_col)
+void write_csv(FILE *file, long int max)
 {
-    int i = 0; // line counter
-    int j = 0; // column counter
-    
-    for (i = 0; i < n_row; i++)
-    {
-	for (j = 0; j < n_col-1; j++)
-	{
-	    fprintf(file, "%ld,", array[i * n_col + j]);
-	}
-	fprintf(file, "%ld\n", array[i * n_col + j]);
-    }
+    fprintf(file, "%ld\n", max);
 }
 
 void read_csv(FILE *file, long int* array, int n_row, int n_col)
@@ -66,15 +58,16 @@ void read_csv(FILE *file, long int* array, int n_row, int n_col)
     }
 }
 
-void multiply_matrix_vector(long int * matrix, long int * vector, long int ** result, int n_row, int n_col)
+void matrix_multiply_max(long int * matrix, long int * vector, int n_row, int n_col, long int * max)
 {
     for (int i = 0; i < n_row; i++)
     {
-	(*result)[i] = 0;
+	long int x = 0;
 	for (int j = 0; j < n_col; j++)
 	{
-	    (*result)[i] += matrix[i * n_col + j] * vector[j];
+	    x += matrix[i * n_col + j] * vector[j];
 	}
+	*max = MAX(*max, x);
     }
 }
 
@@ -127,10 +120,8 @@ int main(int argc, char* argv[])
     // Please use long int as the variable type
     long int * mat_1 = NULL;
     long int * mat_2 = NULL;
-    long int * mat_out = NULL;
     array_allocation(&mat_1, n_row1, n_col1);
     array_allocation(&mat_2, n_row2, n_col2);
-    array_allocation(&mat_out, n_row1, n_col2);
 
     // TODO: Parse the input csv files and fill in the input matrices
     read_csv(inputMatrix1, mat_1, n_row1, n_col1);
@@ -142,16 +133,15 @@ int main(int argc, char* argv[])
     
     // TODO: Parallelize the matrix-matrix multiplication
     long int * input_col = NULL;
-    long int * output_col = NULL;
+    long int maximum = -100000;
 
     printf("row1: %d, col1: %d, row2: %d, col2: %d\n", n_row1, n_col1, n_row2, n_col2);
     
-#pragma omp parallel num_threads(thread_count) default(none) shared(mat_1, mat_2, mat_out, n_row1, n_row2, n_col1, n_col2) private(input_col, output_col)
+#pragma omp parallel num_threads(thread_count) default(none) shared(maximum, mat_1, mat_2, n_row1, n_row2, n_col1, n_col2) private(input_col)
     {
 	input_col = (long int*)malloc(n_row2 * sizeof(long int));
-	output_col = (long int*)malloc(n_row1 * sizeof(long int));
 	
-	#pragma omp for
+#pragma omp for reduction(max:maximum)
 	for (int i = 0; i < n_col2; i++)
 	{
 	    for (int j = 0; j < n_row2; j++)
@@ -159,20 +149,13 @@ int main(int argc, char* argv[])
 		input_col[j] = mat_2[j * n_col2 + i];
 	    }
 	
-	    multiply_matrix_vector(mat_1, input_col, &output_col, n_row1, n_col1);
-
-	    for (int j = 0; j < n_row1; j++)
-	    {
-		mat_out[j * n_col2 + i] = output_col[j];
-	    }
+	    matrix_multiply_max(mat_1, input_col, n_row1, n_col1, &maximum);
 
 	    // print_array(mat_out, n_row1, n_col2);
 	}
 
 	free(input_col);
-	free(output_col);
 	input_col = NULL;
-	output_col = NULL;
     }
     
 
@@ -186,14 +169,12 @@ int main(int argc, char* argv[])
     fprintf(outputTime, "%f", time_passed);
 
     // TODO: save the output matrix to the output csv file
-    write_csv(outputFile, mat_out, n_row1, n_col2);
+    write_csv(outputFile, maximum);
 
     free(mat_1);
     mat_1 = NULL;
     free(mat_2);
     mat_2 = NULL;
-    free(mat_out);
-    mat_out = NULL;
 
     // Cleanup
     fclose(inputMatrix1);
