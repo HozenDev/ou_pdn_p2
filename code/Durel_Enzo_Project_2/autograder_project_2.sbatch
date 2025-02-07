@@ -16,9 +16,9 @@
 #SBATCH --mail-user=Enzo.B.Durel-1@ou.edu
 #SBATCH --mail-type=ALL
 #
-#SBATCH --chdir=/home/user007/HW2/
-#SBATCH --output=/home/oucspdn025/ou_pdn_p2/autograding_%J_stdout.txt
-#SBATCH --error=/home/oucspdn025/ou_pdn_p2/autograding_%J_stderr.txt
+#SBATCH --chdir=/home/oucspdn025/ou_pdn_p2/code/
+#SBATCH --output=/home/oucspdn025/ou_pdn_p2/code/autograding_%J_stdout.txt
+#SBATCH --error=/home/oucspdn025/ou_pdn_p2/code/autograding_%J_stderr.txt
 
 #################################################
 
