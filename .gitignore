@@ -24,5 +24,12 @@
 !/code/Durel_Enzo_Project_2/Problem_*/*.c
 !/code/Durel_Enzo_Project_2/Problem_*/Makefile
 
+# don't ignore report
+!/report
+/report/*
+
+!/report/*.org
+!/report/*.pdf
+
 
 
