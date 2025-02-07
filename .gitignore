@@ -1,0 +1,28 @@
+# ignore all files
+/*
+
+# not ignore gitignore
+!/.gitignore
+
+# not ignore readme
+!/readme.org
+
+# don't ignore code
+!/code
+/code/*
+!/code/autograder_base.py
+
+
+!/code/Durel_Enzo_Project_2
+/code/Durel_Enzo_Project_2/*
+
+!/code/Durel_Enzo_Project_2/*.py
+!/code/Durel_Enzo_Project_2/*.sbatch
+
+!/code/Durel_Enzo_Project_2/Problem_*
+/code/Durel_Enzo_Project_2/Problem_*/*
+!/code/Durel_Enzo_Project_2/Problem_*/*.c
+!/code/Durel_Enzo_Project_2/Problem_*/Makefile
+
+
+
